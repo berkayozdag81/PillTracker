@@ -6,7 +6,6 @@ export default function MyButton() {
     return (
         <View style={{flex:1,flexDirection:'row'}}>
             <Button
-                wid
                 title="Learn More"
                 color="#841584"
             />
