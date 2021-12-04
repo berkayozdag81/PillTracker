@@ -1,7 +1,7 @@
 import React,{useState} from 'react';
 import { StyleSheet, Text, View ,SafeAreaView,Image,TouchableOpacity,Picker} from 'react-native';
 // import Block from "/components/Block";
-// import Analytics from "/components/Analytics";
+ import Analytics from "/components/Analytics";
 
 export default function Home() {
     const [selectedValue,setSelectedValue] =  useState("Cuma");
