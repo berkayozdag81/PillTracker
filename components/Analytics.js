@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet, Text, View,Image} from 'react-native';
 import CircularProgressBar from "./CircularProgressBar";
 
-export default function Block(props) {
+export default function Analytics(props) {
     return (
             <View style={{
                 alignItems: "center",

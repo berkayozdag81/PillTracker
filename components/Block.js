@@ -1,9 +1,8 @@
 import React from 'react';
 import {StyleSheet, Text, View,TouchableOpacity,Image} from 'react-native';
 
-const icon = '../assets/omega.png';
 function Block({
-    MedicineIcon,
+    Icon,
     marginTop
 })
 {
@@ -27,7 +26,7 @@ function Block({
                  width: 54,
                  height: 54,
              }}>
-                 <Image source={require(icon)}/>
+                 <Image source={Icon}/>
              </View>
              <View style={{
                  marginLeft:12,
