@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import { StyleSheet, Text, View ,SafeAreaView,Image,TouchableOpacity,Picker} from 'react-native';
+import { StyleSheet, Text, View ,SafeAreaView,Image,TouchableOpacity,TouchableHighlight,Picker} from 'react-native';
 import Block from "../components/Block";
 import Analytics from "../components/Analytics";
 import Button from "../components/Button";
@@ -94,5 +94,5 @@ const styles = StyleSheet.create({
         backgroundColor: '#1892FA',
         width: 48,
         height: 48
-    }
+    },
 });

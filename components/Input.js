@@ -16,8 +16,8 @@ const Input = ({PlaceHolder}) => {
 const styles = StyleSheet.create({
     input: {
         height: 40,
-        width:'94%',
-        borderWidth: 0.5,
+        width:'90%',
+        borderWidth: 1.5,
         padding: 10,
         borderRadius:999,
         fontSize:15,

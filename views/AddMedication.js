@@ -1,26 +1,36 @@
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
 import { StyleSheet, Text, View, FlatList,Image,TouchableOpacity} from 'react-native';
 import {SafeAreaView} from "react-native-safe-area-context";
 import Button from "../components/Button";
 import Input from "../components/Input";
-import {NavigationActions as navigation} from "react-navigation";
+import {useNavigation} from '@react-navigation/native';
+import AddMedicationTime from "../views/AddMedicationTime"
+
 
 const DATA = [
     {
         id: 0,
         title: 'First Item',
+        image:"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+
     },
     {
         id: 1,
         title: 'Second Item',
+        image:"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+
     },
     {
         id: 2,
         title: 'Third Item',
+        image:"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+
     },
     {
         id: 3,
         title: 'Fourth Item',
+        image:"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+
     },
 ];
 const DATA2 = [
@@ -42,9 +52,16 @@ const DATA2 = [
     },
 ];
 
-const MedicineType = ({onPress, selected}) => {
+const MedicineType = ({onPress, selected,image}) => {
+    useEffect(()=>{
+        console.log(image)
+    },[])
+
     return(
         <Button onPress={onPress} style={{borderRadius: 999, backgroundColor: '#F2F6F7', width: 64, height: 64}}>
+            <Image
+                source={require('../assets/omega.png')}
+            />
             {selected && (
                 <View style={{backgroundColor: "green", width: 18, height: 18,
                     borderRadius: 999, position: 'absolute', top: 0, right: 0}}>
@@ -64,6 +81,7 @@ const Item = ({ item, onPress, backgroundColor, textColor }) => (
 export default function App() {
     const [selectedMedicineType, setSelectedMedicineType] = useState(null);
     const [selectedId, setSelectedId] = useState(null);
+    const navigation = useNavigation();
 
     const itemSeparator = () => (
         <View
@@ -91,7 +109,7 @@ export default function App() {
         <SafeAreaView style={styles.container}>
             <View style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center',width:'95%',height:44}}>
                 <View>
-                    <Button>
+                    <Button onPress={() => navigation.navigate("Home")}>
                         <Image source={require('../assets/back_vector.png')}/>
                     </Button>
                 </View>
@@ -110,7 +128,7 @@ export default function App() {
                     horizontal
                     data={DATA}
                     renderItem={({item, index}) => (
-                        <MedicineType selected={item.id === selectedMedicineType} onPress={() => {
+                        <MedicineType image={item.image} selected={item.id === selectedMedicineType} onPress={() => {
                             if(item.id === selectedMedicineType){
                                 setSelectedMedicineType(null);
                                 return;
@@ -122,7 +140,7 @@ export default function App() {
                     keyExtractor={item => item.id}
                 />
             </View>
-            <View style={{width:'100%',height:40,flexDirection: 'row',top:140,}}>
+            <View style={{width:'100%',height:50,flexDirection: 'row',top:140,}}>
                 <Input PlaceHolder={'İlaç İsmi'}/>
             </View>
             <View style={{width:'100%',height:40,flexDirection: 'row',top:185,}}>
@@ -137,7 +155,7 @@ export default function App() {
                     extraData={selectedId}
                 />
             </View>
-            <Button style={styles.nextButton}>
+            <Button style={styles.nextButton} onPress={() => navigation.navigate("AddMedicationTime")}>
                 <Text style={{color: 'white', fontSize: 25}}>Next</Text>
             </Button>
         </SafeAreaView>
