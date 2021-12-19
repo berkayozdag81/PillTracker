@@ -1,15 +1,71 @@
-import React,{useState} from 'react';
-import { StyleSheet, Text, View ,SafeAreaView,Image,TouchableOpacity,TouchableHighlight,Picker} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, View, Image, TouchableOpacity, SectionList,} from 'react-native';
 import Block from "../components/Block";
 import Analytics from "../components/Analytics";
 import Button from "../components/Button";
-import {useNavigation} from '@react-navigation/native';
+import {DrawerActions, useNavigation} from '@react-navigation/native';
 import Omega from '../assets/omega.png';
-import Pill from '../assets/pill.png';
+import {SafeAreaView} from "react-native-safe-area-context";
+import {auth, firestore} from "../firebase";
 
+const groupBy = (arr, key) => {
+    const initialValue = {};
+    return arr.reduce((acc, cval) => {
+        const myAttribute = cval[key];
+        acc[myAttribute] = [...(acc[myAttribute] || []), cval]
+        return acc;
+    }, initialValue);
+};
+
+const DATA = [
+    {
+        title: "Main dishes",
+        data: ["Pizza", "Burger", "Risotto"]
+    },
+    {
+        title: "Sides",
+        data: ["French Fries", "Onion Rings", "Fried Shrimps"]
+    },
+    {
+        title: "Drinks",
+        data: ["Water", "Coke", "Beer"]
+    },
+    {
+        title: "Desserts",
+        data: ["Cheese Cake", "Ice Cream"]
+    }
+];
+
+
+const renderPill = ({item, index}) => {
+    return <Block Icon={Omega} Item={item} marginTop={16}/>;
+}
+
+const RenderTime = ({title}) => {
+    return (
+        <Text style={{color:"#191D30",
+            marginVertical: 25,
+            fontSize:20,
+            lineHeight:24,
+            fontWeight:"bold"}} >{title}</Text>
+    )
+}
 
 export default function Home() {
-    const [selectedValue,setSelectedValue] =  useState("Cuma");
+    const [homeData, setHomeData] = useState([]);
+
+    useEffect(() => {
+
+        firestore.collection('ilaclar').where('userId', '==', auth.currentUser.uid).get().then(querySnapshot => {
+            querySnapshot.forEach(documentSnapshot => {
+                homeData.push(...documentSnapshot.data());
+                setHomeData(homeData);
+                //console.log('İlaç: ', documentSnapshot.data());
+            });
+        });
+        console.log(homeData);
+    }, []);
+
     const navigation = useNavigation();
     return (
         <SafeAreaView style={styles.container}>
@@ -17,49 +73,23 @@ export default function Home() {
                 <View style={{width: 283,height:20}}>
                     <Text style={{fontSize:16,lineHeight:20,fontStyle:"normal",color:"#8C8E97"}}>Selam Berkay,</Text>
                 </View>
-                <View style={{height:20}}>
-                    <TouchableOpacity>
-                        <Image source={require('../assets/icon.png')}/>
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+                    <View style={{height:40, width: 40, backgroundColor: '#67B779', borderRadius: 999, alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={{color: 'white', fontSize:24}}>B</Text>
+                    </View>
+                </TouchableOpacity>
             </View>
-            <View style={styles.picker}>
-                <Picker
-                    selectedValue={selectedValue}
-                    style={{ height: 50, width: 150,fontsize:34,fontStyle:"normal",fontWeight:"bold",lineHeight:38,color:"#191D30"}}
-                    onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
-                >
-                    <Picker.Item label="Pazartesi" value="Pazartesi" />
-                    <Picker.Item label="Salı" value="Salı" />
-                    <Picker.Item label="Çarşamba" value="Çarşamba" />
-                    <Picker.Item label="Perşembe" value="Perşembe" />
-                    <Picker.Item label="Cuma" value="Cuma" />
-                    <Picker.Item label="Cumartesi" value="Cumartesi" />
-                    <Picker.Item label="Pazar" value="Pazar" />
-                </Picker>
-            </View>
-            <Analytics marginTop={16}/>
-            <View style={{marginTop:15}}>
-                <Text style={{color:"#191D30",
-                    fontSize:20,
-                    lineHeight:24,
-                    fontWeight:"bold"}} >
-                    08:00
-                </Text>
-            </View>
-            <Block Icon={Omega} marginTop={16}/>
-            <View style={{marginTop:15}}>
-                <Text style={{color:"#191D30",
-                    fontSize:20,
-                    lineHeight:24,
-                   fontWeight:"bold"}} >
-                    16:30
-                </Text>
-            </View>
-            <Block Icon={Pill} marginTop={16}/>
-            <Button onPress={() => navigation.navigate('AddMedication')}  style={styles.addButton}>
-              <Text style={{color: 'white', fontSize: 25}}>+</Text>
-            </Button>
+            <SectionList
+                style={{marginTop: 30}}
+                ListHeaderComponent={() => <Analytics />}
+                sections={DATA}
+                renderItem={renderPill}
+                ItemSeparatorComponent={() => <View style={{height: 20}}/>}
+                renderSectionHeader={({ section: { title } }) => (
+                    <RenderTime title={title} />
+                )}
+                keyExtractor={(item, index) => item + index}
+            />
         </SafeAreaView>
     );
 }
@@ -68,6 +98,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding:26,
+        paddingBottom: 0,
         backgroundColor: 'white',
     },
     navbar:{

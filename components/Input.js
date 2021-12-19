@@ -1,7 +1,7 @@
 import React from "react";
 import {StyleSheet, TextInput } from "react-native";
 
-const Input = ({PlaceHolder}) => {
+const Input = ({PlaceHolder, }) => {
     const [text, onChangeText] = React.useState("");
     return (
             <TextInput

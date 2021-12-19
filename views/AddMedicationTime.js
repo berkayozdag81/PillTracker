@@ -2,9 +2,15 @@ import React,{useState} from 'react';
 import {StyleSheet, Text, View, Switch, Image, TouchableOpacity, FlatList} from 'react-native';
 import {SafeAreaView} from "react-native-safe-area-context";
 import Button from "../components/Button";
-import Block from "../components/Block";
-import Pill from '../assets/pill.png';
-import {useNavigation} from '@react-navigation/native';
+import {auth, firestore} from "../firebase";
+import MedicineInfo from "../components/MedicineInfo";
+import pill from "../assets/pill.png";
+import surup from "../assets/surup.png";
+import igne from "../assets/igne.png";
+import astim from "../assets/astim.png";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+
+const medicineTypesImages = [ pill, surup, igne, astim ];
 
 const DATA = [
     {
@@ -40,23 +46,42 @@ const Item = ({ item, onPress, backgroundColor, textColor,textSize,textWeight })
 );
 
 
-export default function AddMedicineTime() {
+export default function AddMedicineTime({route, navigation}) {
+    const { selectedMedicineType, pillName, doseCount, beforeTimeType } = route.params;
+
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => {
-        if(isEnabled == false){
-            setIsEnabled(previousState => !previousState);
-            setIsShow(true);
-        }
-        else{
-            setIsEnabled(previousState => !previousState);
-            setIsShow(false);
-        }
-    }
-    const [isShow, setIsShow] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
-    const navigation = useNavigation();
+    const [selectedIndex, setSelectedIndex] = useState(null);
+    const [doseCountArray, setDoseCountArray] = useState(new Array(parseInt(doseCount)).fill("00:00"));
 
+    const showDatePicker = (index) => {
+        setDatePickerVisibility(true);
+        setSelectedIndex(index);
+    };
 
+    const hideDatePicker = () => {
+        setDatePickerVisibility(false);
+    };
+
+    const handleConfirm = (date) => {
+        let newArray = [...doseCountArray];
+        newArray[selectedIndex] = `${date.getHours()}:${date.getMinutes()}`;
+        setDoseCountArray(newArray);
+        hideDatePicker();
+    };
+
+    const renderDoseHours = () => {
+        return doseCountArray.map((item, index) => {
+            return (
+                <View key={index} style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center', marginVertical: 20}}>
+                    <Text>Doz {index + 1}</Text>
+                    <TouchableOpacity onPress={() => showDatePicker(index)}><Text>{doseCountArray[index]}</Text></TouchableOpacity>
+                </View>
+            )
+        })
+
+    }
 
     const renderItem = ({ item,onPress, selected }) => {
         const backgroundColor = item.id === selectedId ? "#FFFFFF" : "white";
@@ -76,81 +101,43 @@ export default function AddMedicineTime() {
         );
     };
 
-    if(isShow == false)
-    {return (
+    const onFinishedPress = () => {
+        doseCountArray.forEach((time) => {
+            firestore.collection('ilaclar').add({
+                medicineName: pillName,
+                beforeTimeType,
+                medicineType: selectedMedicineType,
+                doseTime: time,
+                userId: auth.currentUser.uid
+            });
+        });
+
+        navigation.navigate("Home");
+    }
+
+    return(
         <SafeAreaView style={styles.container}>
-            <View style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center',width:'95%',height:44}}>
+            <View style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center', marginVertical: 20}}>
                 <View>
-                    <Button onPress={() => navigation.navigate("AddMedication")} >
+                    <Button onPress={() => navigation.navigate("AddMedication")}>
                         <Image source={require('../assets/back_vector.png')}/>
                     </Button>
                 </View>
-                <View>
-                    <TouchableOpacity>
-                        <Image source={require('../assets/Vector.png')}/>
-                    </TouchableOpacity>
-                </View>
             </View>
-            <Text style={{fontWeight:'normal',fontSize:16,color:'#8C8E97',top:12}}>2. Adım</Text>
-            <Text style={{fontWeight:'bold',fontSize:30,color:'#191D30',top:44}}>Takvim</Text>
-            <View style={{top:70}}>
-                <Block Icon={Pill}/>
-            </View>
-            <View style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center',width:'65%',height:44,top:88}}>
-                <Text>Dose1</Text>
-                <Text>08:00</Text>
-            </View>
-            <Button style={styles.addDose}>
-                <Text style={{color: 'black', fontSize: 25}}>+</Text>
-            </Button>
-            <Button style={styles.nextButton}>
-                <Text style={{color: 'white', fontSize: 25}}>İlaç Saati Ekle</Text>
-            </Button>
-            <View style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center',width:'95%',height:44,top:132}}>
-                <Text style={{fontWeight:'bold',fontSize:24,color:'#191D30',}}>
-                    Hatırlatıcı
-                </Text>
-                <Switch
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                    thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleSwitch}
-                    value={isEnabled}
-                />
-            </View>
-        </SafeAreaView>
-    );}
-    else{
-        return(
-            <SafeAreaView style={styles.container}>
-                <View style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center',width:'95%',height:44}}>
-                    <View>
-                        <Button onPress={() => navigation.navigate("AddMedication")}>
-                            <Image source={require('../assets/back_vector.png')}/>
-                        </Button>
-                    </View>
-                    <View>
-                        <TouchableOpacity>
-                            <Image source={require('../assets/Vector.png')}/>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                <Text style={{fontWeight:'normal',fontSize:16,color:'#8C8E97',top:12}}>2. Adım</Text>
-                <Text style={{fontWeight:'bold',fontSize:30,color:'#191D30',top:44}}>Takvim</Text>
-                <View style={{top:70}}>
-                    <Block Icon={Pill}/>
-                </View>
-                <View style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center',width:'65%',height:44,top:88}}>
-                    <Text>Dose1</Text>
-                    <Text>08:00</Text>
-                </View>
-                <Button style={styles.addDose}>
-                    <Text style={{color: 'black', fontSize: 25}}>+</Text>
-                </Button>
-                <Button style={styles.nextButton}>
-                    <Text style={{color: 'white', fontSize: 25}}>İlaç Saati Ekle</Text>
-                </Button>
-                <View style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center',width:'95%',height:44,top:132}}>
+            <Text style={{fontWeight:'normal',fontSize:16,color:'#8C8E97', marginVertical: 10}}>2. Adım</Text>
+            <Text style={{fontWeight:'bold',fontSize:30,color:'#191D30',  marginBottom: 20}}>Takvim</Text>
+
+            <MedicineInfo
+                PillName={pillName}
+                DoseCount={doseCount}
+                beforeTimeType={beforeTimeType}
+                Icon={medicineTypesImages[selectedMedicineType]}
+            />
+
+            {renderDoseHours()}
+
+            <View style={{flex: 1}}>
+                <View style={{flexDirection: 'row', justifyContent:'space-between'}}>
                     <Text style={{fontWeight:'bold',fontSize:24,color:'#191D30',}}>
                         Hatırlatıcı
                     </Text>
@@ -158,45 +145,49 @@ export default function AddMedicineTime() {
                         trackColor={{ false: "#767577", true: "#81b0ff" }}
                         thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
                         ios_backgroundColor="#3e3e3e"
-                        onValueChange={toggleSwitch}
+                        onValueChange={() => setIsEnabled(!isEnabled)}
                         value={isEnabled}
                     />
                 </View>
-                <View style={{top: 160}}>
-                    <FlatList
-                        data={DATA}
-                        renderItem={renderItem}
-                        horizontal
-                        keyExtractor={(item) => item.id}
-                        extraData={selectedId}
-                    />
-                </View>
-            </SafeAreaView>
-        )
-    }
+                {isEnabled && (
+                    <View style={{marginTop: 20}}>
+                        <FlatList
+                            data={DATA}
+                            renderItem={renderItem}
+                            horizontal
+                            keyExtractor={(item) => item.id}
+                            extraData={selectedId}
+                        />
+                    </View>
+                )}
+            </View>
+
+
+            <Button onPress={onFinishedPress} style={styles.nextButton}>
+                <Text style={{color: 'white', fontSize: 20}}>Tamamla</Text>
+            </Button>
+
+            <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="time"
+                onConfirm={handleConfirm}
+                onCancel={hideDatePicker}
+            />
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        paddingVertical: 0,
+        paddingHorizontal: 24,
         flexDirection: 'column',
-        paddingLeft: 24,
         backgroundColor: 'white'
     },
     nextButton: {
-        position: 'absolute',
-        top:700,
         borderRadius: 999,
         backgroundColor: '#1892FA',
-        width: '94%',
-        left:24,
         height: 48,
     },
-    addDose: {
-        top:116,
-        borderRadius: 999,
-        backgroundColor: '#F2F6F7',
-        width: 48,
-        height: 48
-    }
 });

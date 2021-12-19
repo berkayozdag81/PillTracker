@@ -1,146 +1,117 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, Image, TouchableHighlight} from 'react-native';
-import { SwipeListView } from 'react-native-swipe-list-view';
+import SwipeableItem, { useSwipeableItemParams } from 'react-native-swipeable-item';
+import Animated, {useAnimatedStyle} from "react-native-reanimated";
 
 
-function Block({
-    Icon,
-    marginTop,
-})
-{
-    const [listData, setListData] = useState(
-        Array(1).fill('').map((_, i) => ({ key: `${i}`, text: `Item ${++i}` }))
-    );
-    const [isShow,setIsShow]=useState(false);
+function Block({Icon, Item}) {
+    const [snapPointsLeft, setSnapPointsLeft] = useState([70])
 
-    const closeItem = (rowMap, rowKey) => {
-        if (rowMap[rowKey]) {
-            rowMap[rowKey].closeRow();
-        }
+    const UnderlayLeft = () => {
+        const { item, percentOpen } = useSwipeableItemParams();
+        const animStyle = useAnimatedStyle(
+            () => ({
+                opacity: percentOpen.value,
+            }),
+            [percentOpen]
+        );
+
+        return (
+            <Animated.View
+                style={[styles.row, styles.underlayLeft, animStyle]} // Fade in on open
+            >
+                <TouchableOpacity>
+                    <Image source={require('../assets/tickVector.png')}/>
+                </TouchableOpacity>
+            </Animated.View>
+        );
     };
 
-    const onItemOpen = rowKey => {
-    };
+    return (
+        <SwipeableItem
+            item={Item}
+            overSwipe={20}
+            snapPointsLeft={snapPointsLeft}
+            renderUnderlayLeft={() => <UnderlayLeft />}
+            onChange={({ open }) => {
+            console.log('on change!!!', open)
 
-    const renderItem = data => (
-        <TouchableHighlight
-            style={style.rowFront}
-        >
-            <View style={{
-                flexDirection:'row'
             }}>
+            <TouchableHighlight
+                style={styles.rowFront}
+            >
                 <View style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: 54,
-                    height: 54,
+                    flexDirection:'row'
                 }}>
-                    <Image source={Icon}/>
-                </View>
-                <View style={{
-                    marginLeft:12,
-                    flexDirection:"column",
-                    flex:1,
-                }}>
-                    <Text style={{
-                        color:"#191D30",
-                        fontSize:20,
-                        lineHeight:24,
-                        fontWeight:"bold"
-                    }}>Omega 3</Text>
                     <View style={{
-                        marginTop:8,
-                        flexDirection:"row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: 54,
+                        height: 54,
                     }}>
-                        <Text
-                            style={{
+                        <Image source={Icon}/>
+                    </View>
+                    <View style={{
+                        marginLeft:12,
+                        flexDirection:"column",
+                        flex:1,
+                    }}>
+                        <Text style={{
+                            color:"#191D30",
+                            fontSize:20,
+                            lineHeight:24,
+                            fontWeight:"bold"
+                        }}>Omega 3</Text>
+                        <View style={{
+                            marginTop:8,
+                            flexDirection:"row",
+                        }}>
+                            <Text
+                                style={{
+                                    color:"#8C8E97",
+                                    fontSize:16,
+                                    lineHeight:20,
+                                }}
+                            >1 tablet after meals</Text>
+                            <Text style={{
+                                marginLeft:"auto",
                                 color:"#8C8E97",
                                 fontSize:16,
                                 lineHeight:20,
-                            }}
-                        >1 tablet after meals</Text>
-                        <Text style={{
-                            marginLeft:"auto",
-                            color:"#8C8E97",
-                            fontSize:16,
-                            lineHeight:20,
-                        }}>7 days</Text>
+                            }}>7 days</Text>
+                        </View>
                     </View>
                 </View>
-            </View>
-        </TouchableHighlight>
-    );
-
-
-
-    const renderHiddenItem = (data, rowMap) => (
-        isShow ? (
-            <View style={style.rowBack}>
-                <TouchableOpacity
-                    style={[style.actionButton, style.closeBtn]}
-                    onPress={() => closeItem(rowMap, data.item.key)}
-                >
-                    <Image source={require('../assets/tickVector.png')}/>
-                </TouchableOpacity>
-            </View>
-        ):(
-            <View></View>
-        )
-    );
-
-
-    return (
-        <View>
-            <SwipeListView
-                data={listData}
-                renderItem={renderItem}
-                renderHiddenItem={renderHiddenItem}
-                leftOpenValue={75}
-                rightOpenValue={-150}
-                previewRowKey={'0'}
-                previewOpenValue={-40}
-                previewOpenDelay={3000}
-                onRowDidOpen={()=>{setIsShow(true)}}
-                onRowDidClose={()=>{setIsShow(false)}}
-            />
-        </View>
+            </TouchableHighlight>
+        </SwipeableItem>
     );
 }
 export default Block;
 
 
-const style = StyleSheet.create({
+const styles = StyleSheet.create({
     rowFront: {
         alignItems: "center",
         padding: 24,
         borderRadius: 24,
         borderWidth: 1,
         borderColor: "#ECEDEF",
-        width: "100%",
         height: 110,
     },
-    rowBack: {
-        alignItems: "center",
-        padding: 24,
-        borderRadius: 24,
-        borderWidth: 1,
-        borderColor: "white",
-        width: "100%",
+    row: {
+        flexDirection: 'row',
         height: 110,
-        left: 75
-    },
-    actionButton: {
         alignItems: 'center',
-        bottom: 0,
         justifyContent: 'center',
-        position: 'absolute',
-        top: 0,
-        width: '25%',
+        padding: 25,
     },
-    closeBtn: {
-        backgroundColor: '#ECEDEF',
-        right: 75,
-        borderRadius:24
+    text: {
+        fontWeight: 'bold',
+        color: 'blue',
+        fontSize: 32,
+    },
+    underlayLeft: {
+        height: 110,
+        justifyContent: 'flex-end',
     },
 });
-

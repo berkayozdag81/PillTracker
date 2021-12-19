@@ -1,67 +1,61 @@
-import React,{useState,useEffect} from 'react';
-import { StyleSheet, Text, View, FlatList,Image,TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import { StyleSheet, Text, View, FlatList,Image,TouchableOpacity, TextInput} from 'react-native';
 import {SafeAreaView} from "react-native-safe-area-context";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import {useNavigation} from '@react-navigation/native';
 import AddMedicationTime from "../views/AddMedicationTime"
-
+import pill from '../assets/pill.png';
+import astim from '../assets/astim.png';
+import igne from '../assets/igne.png';
+import surup from '../assets/surup.png';
 
 const DATA = [
     {
         id: 0,
-        title: 'First Item',
-        image:"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+        image: pill
 
     },
     {
         id: 1,
-        title: 'Second Item',
-        image:"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+        image: surup
 
     },
     {
         id: 2,
-        title: 'Third Item',
-        image:"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+        image: igne
 
     },
     {
         id: 3,
-        title: 'Fourth Item',
-        image:"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+        image: astim
 
     },
 ];
+
 const DATA2 = [
     {
         id: 0,
-        title: 'Never Mind',
+        title: 'Zaman Önemi Yok',
     },
     {
         id: 1,
-        title: 'After meal',
+        title: 'Yemekten Sonra',
     },
     {
         id: 2,
-        title: 'Before Meal',
+        title: 'Yemekten Önce',
     },
     {
         id: 3,
-        title: 'Before Night',
+        title: 'Yatmadan Önce',
     },
 ];
 
-const MedicineType = ({onPress, selected,image}) => {
-    useEffect(()=>{
-        console.log(image)
-    },[])
-
+const MedicineType = ({onPress, selected, image}) => {
     return(
         <Button onPress={onPress} style={{borderRadius: 999, backgroundColor: '#F2F6F7', width: 64, height: 64}}>
-            <Image
-                source={require('../assets/omega.png')}
-            />
+            <Image style={{width: 40, height: 40}} source={image} />
             {selected && (
                 <View style={{backgroundColor: "green", width: 18, height: 18,
                     borderRadius: 999, position: 'absolute', top: 0, right: 0}}>
@@ -80,7 +74,9 @@ const Item = ({ item, onPress, backgroundColor, textColor }) => (
 
 export default function App() {
     const [selectedMedicineType, setSelectedMedicineType] = useState(null);
-    const [selectedId, setSelectedId] = useState(null);
+    const [beforeTimeType, setBeforeTimeType] = useState(null);
+    const [pillName, setPillName] = useState("");
+    const [doseCount, setDoseCount] = useState("1");
     const navigation = useNavigation();
 
     const itemSeparator = () => (
@@ -89,15 +85,15 @@ export default function App() {
         />
     );
 
-    const renderItem = ({ item,onPress, selected }) => {
-        const backgroundColor = item.id === selectedId ? "#F2F6F7" : "white";
-        const color = item.id === selectedId ? 'black' : 'grey';
+    const renderItem = ({ item, selected }) => {
+        const backgroundColor = item.id === beforeTimeType ? "#F2F6F7" : "white";
+        const color = item.id === beforeTimeType ? 'black' : 'grey';
         const backgroundColor2 = selected ? 'red' : 'white';
         return (
             <Button style={{borderRadius:999,backgroundColor: '#F2F6F7', width: 119, height: 24,fontSize:20,fontWeight:'bold'}}>
                 <Item
                     item={item}
-                    onPress={() => setSelectedId(item.id)}
+                    onPress={() => setBeforeTimeType(item.id)}
                     backgroundColor={{ backgroundColor2 }}
                     textColor={{ color }}
                 />
@@ -107,21 +103,9 @@ export default function App() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{flexDirection: 'row',justifyContent:'space-between',alignItems:'center',width:'95%',height:44}}>
-                <View>
-                    <Button onPress={() => navigation.navigate("Home")}>
-                        <Image source={require('../assets/back_vector.png')}/>
-                    </Button>
-                </View>
-                <View>
-                    <TouchableOpacity>
-                        <Image source={require('../assets/Vector.png')}/>
-                    </TouchableOpacity>
-                </View>
-            </View>
-            <Text style={{fontWeight:'normal',fontSize:16,color:'#8C8E97',top:12}}>1. Adım</Text>
-            <Text style={{fontWeight:'bold',fontSize:30,color:'#191D30',top:44}}>Add medication</Text>
-            <View style={{top:70}}>
+            <Text style={{fontWeight:'normal',fontSize:16,color:'#8C8E97'}}>1. Adım</Text>
+            <Text style={{fontWeight:'bold',fontSize:30,color:'#191D30', marginTop: 14}}>İlaç Ekle</Text>
+            <View style={{marginTop:50}}>
                 <FlatList
                     extraData={selectedMedicineType}
                     ItemSeparatorComponent={itemSeparator}
@@ -140,23 +124,30 @@ export default function App() {
                     keyExtractor={item => item.id}
                 />
             </View>
-            <View style={{width:'100%',height:50,flexDirection: 'row',top:140,}}>
-                <Input PlaceHolder={'İlaç İsmi'}/>
+            <View style={{width:'100%',height:50,flexDirection: 'row', marginTop: 50}}>
+                <TextInput style={styles.input} onChangeText={text => setPillName(text)} placeholder={'İlaç İsmi'}/>
             </View>
-            <View style={{width:'100%',height:40,flexDirection: 'row',top:185,}}>
-                <Input PlaceHolder={'Kaç Doz'}/>
+            <View style={{width:'100%',height:40,flexDirection: 'row',marginTop: 30}}>
+                <TextInput style={styles.input} onChangeText={text => setDoseCount(text)} placeholder={'Kaç Doz'} />
             </View>
-            <View style={{top:225}}>
+            <View style={{marginTop: 50, flex: 1}}>
                 <FlatList
                     data={DATA2}
                     renderItem={renderItem}
                     horizontal
                     keyExtractor={(item) => item.id}
-                    extraData={selectedId}
+                    extraData={beforeTimeType}
                 />
             </View>
-            <Button style={styles.nextButton} onPress={() => navigation.navigate("AddMedicationTime")}>
-                <Text style={{color: 'white', fontSize: 25}}>Next</Text>
+            <Button style={styles.nextButton} onPress={() => navigation.navigate("AddMedicationTime",
+                {
+                    selectedMedicineType: selectedMedicineType,
+                    pillName : pillName,
+                    doseCount: doseCount,
+                    beforeTimeType : beforeTimeType
+                }
+                )}>
+                <Text style={{color: 'white', fontSize: 20}}>Next</Text>
             </Button>
         </SafeAreaView>
     );
@@ -166,16 +157,23 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
-        paddingLeft: 24,
-        backgroundColor: 'white'
+        paddingHorizontal: 24,
+        backgroundColor: 'white',
+        paddingVertical: 12,
     },
     nextButton: {
-        position: 'absolute',
-        top:700,
         borderRadius: 999,
         backgroundColor: '#1892FA',
-        width: '94%',
-        left:24,
         height: 48,
-    }
+    },
+    input: {
+        height: 40,
+        width:'100%',
+        borderWidth: 1.5,
+        padding: 10,
+        borderRadius:999,
+        fontSize:15,
+        fontWeight:'bold',
+        color:'#C4CACF',
+    },
 });
