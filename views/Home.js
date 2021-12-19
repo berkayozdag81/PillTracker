@@ -1,44 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, View, Image, TouchableOpacity, SectionList,} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, SectionList,} from 'react-native';
 import Block from "../components/Block";
 import Analytics from "../components/Analytics";
-import Button from "../components/Button";
-import {DrawerActions, useNavigation} from '@react-navigation/native';
-import Omega from '../assets/omega.png';
+import {DrawerActions, useNavigation, useFocusEffect} from '@react-navigation/native';
 import {SafeAreaView} from "react-native-safe-area-context";
 import {auth, firestore} from "../firebase";
 
-const groupBy = (arr, key) => {
-    const initialValue = {};
-    return arr.reduce((acc, cval) => {
-        const myAttribute = cval[key];
-        acc[myAttribute] = [...(acc[myAttribute] || []), cval]
-        return acc;
-    }, initialValue);
-};
-
-const DATA = [
-    {
-        title: "Main dishes",
-        data: ["Pizza", "Burger", "Risotto"]
-    },
-    {
-        title: "Sides",
-        data: ["French Fries", "Onion Rings", "Fried Shrimps"]
-    },
-    {
-        title: "Drinks",
-        data: ["Water", "Coke", "Beer"]
-    },
-    {
-        title: "Desserts",
-        data: ["Cheese Cake", "Ice Cream"]
-    }
-];
-
-
-const renderPill = ({item, index}) => {
-    return <Block Icon={Omega} Item={item} marginTop={16}/>;
+const renderPill = ({item}) => {
+    return <Block Item={item} marginTop={16}/>;
 }
 
 const RenderTime = ({title}) => {
@@ -54,17 +23,50 @@ const RenderTime = ({title}) => {
 export default function Home() {
     const [homeData, setHomeData] = useState([]);
 
-    useEffect(() => {
+    useFocusEffect(
+        React.useCallback( () => {
+            let tempArr = [];
 
-        firestore.collection('ilaclar').where('userId', '==', auth.currentUser.uid).get().then(querySnapshot => {
-            querySnapshot.forEach(documentSnapshot => {
-                homeData.push(...documentSnapshot.data());
-                setHomeData(homeData);
-                //console.log('İlaç: ', documentSnapshot.data());
-            });
-        });
-        console.log(homeData);
-    }, []);
+            const fetchPills = async () => {
+                try {
+                    const pills = await firestore.collection('ilaclar').where('userId', '==', auth.currentUser.uid).where("done", "==", false);
+
+                    pills.onSnapshot((querySnapshot)=>{
+                        querySnapshot.forEach(documentSnapshot => {
+                            tempArr.push({id:documentSnapshot.id, ...documentSnapshot.data()});
+                        });
+                        let res = tempArr.reduce((re, o) => {
+                            let existObj = re.find(
+                                obj => obj.title === o.doseTime
+                            )
+
+                            if (existObj) {
+                                existObj.data.push(o)
+                            } else {
+                                re.push({
+                                    title: o.doseTime,
+                                    data: [o]
+                                })
+                            }
+                            return re
+                        }, [])
+
+                        setHomeData(res);
+                        console.log(res);
+                    });
+
+                } catch (e) {
+                    // Handle error
+                }
+            };
+
+            fetchPills();
+
+            return () => {
+                tempArr = [];
+            };
+        }, [])
+    );
 
     const navigation = useNavigation();
     return (
@@ -82,7 +84,7 @@ export default function Home() {
             <SectionList
                 style={{marginTop: 30}}
                 ListHeaderComponent={() => <Analytics />}
-                sections={DATA}
+                sections={homeData}
                 renderItem={renderPill}
                 ItemSeparatorComponent={() => <View style={{height: 20}}/>}
                 renderSectionHeader={({ section: { title } }) => (

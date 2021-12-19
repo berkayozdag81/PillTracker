@@ -108,7 +108,8 @@ export default function AddMedicineTime({route, navigation}) {
                 beforeTimeType,
                 medicineType: selectedMedicineType,
                 doseTime: time,
-                userId: auth.currentUser.uid
+                userId: auth.currentUser.uid,
+                done: false,
             });
         });
 
@@ -125,7 +126,7 @@ export default function AddMedicineTime({route, navigation}) {
                 </View>
             </View>
             <Text style={{fontWeight:'normal',fontSize:16,color:'#8C8E97', marginVertical: 10}}>2. Adım</Text>
-            <Text style={{fontWeight:'bold',fontSize:30,color:'#191D30',  marginBottom: 20}}>Takvim</Text>
+            <Text style={{fontWeight:'bold',fontSize:30,color:'#191D30',  marginBottom: 20}}>Özet</Text>
 
             <MedicineInfo
                 PillName={pillName}

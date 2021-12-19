@@ -1,8 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, View, Image} from 'react-native';
+import {beforeTimeTypes} from "../consts";
 
-
-const beforeTimeTypes = ['Zaman Önemi Yok', "Yemekten Sonra", "Yemekten Önce", "Yatmadan Önce"];
 function MedicineInfo({Icon, PillName, DoseCount, beforeTimeType}) {
     return (
         <View

@@ -2,9 +2,11 @@ import React, {useState} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, Image, TouchableHighlight} from 'react-native';
 import SwipeableItem, { useSwipeableItemParams } from 'react-native-swipeable-item';
 import Animated, {useAnimatedStyle} from "react-native-reanimated";
+import {beforeTimeTypes, pillTypes} from "../consts";
+import {firestore} from "../firebase";
 
 
-function Block({Icon, Item}) {
+function Block({Item}) {
     const [snapPointsLeft, setSnapPointsLeft] = useState([70])
 
     const UnderlayLeft = () => {
@@ -16,11 +18,20 @@ function Block({Icon, Item}) {
             [percentOpen]
         );
 
+        const onDonePress = () => {
+            firestore
+                .collection('ilaclar')
+                .doc(Item.id).delete()
+                .then(() => {
+                    console.log(`${Item.id} updated!'`);
+                });
+        }
+
         return (
             <Animated.View
-                style={[styles.row, styles.underlayLeft, animStyle]} // Fade in on open
+                style={[styles.row, styles.underlayLeft, animStyle]}
             >
-                <TouchableOpacity>
+                <TouchableOpacity onPress={onDonePress}>
                     <Image source={require('../assets/tickVector.png')}/>
                 </TouchableOpacity>
             </Animated.View>
@@ -49,7 +60,7 @@ function Block({Icon, Item}) {
                         width: 54,
                         height: 54,
                     }}>
-                        <Image source={Icon}/>
+                        <Image style={{width: 40, height: 40}} source={pillTypes[Item.medicineType]}/>
                     </View>
                     <View style={{
                         marginLeft:12,
@@ -61,7 +72,7 @@ function Block({Icon, Item}) {
                             fontSize:20,
                             lineHeight:24,
                             fontWeight:"bold"
-                        }}>Omega 3</Text>
+                        }}>{Item.medicineName}</Text>
                         <View style={{
                             marginTop:8,
                             flexDirection:"row",
@@ -72,7 +83,7 @@ function Block({Icon, Item}) {
                                     fontSize:16,
                                     lineHeight:20,
                                 }}
-                            >1 tablet after meals</Text>
+                            >1 Doz - {beforeTimeTypes[Item.beforeTimeType]}</Text>
                             <Text style={{
                                 marginLeft:"auto",
                                 color:"#8C8E97",

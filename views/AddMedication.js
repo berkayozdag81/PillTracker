@@ -4,7 +4,8 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import {useNavigation} from '@react-navigation/native';
-import AddMedicationTime from "../views/AddMedicationTime"
+import {Picker} from '@react-native-picker/picker';
+
 import pill from '../assets/pill.png';
 import astim from '../assets/astim.png';
 import igne from '../assets/igne.png';
@@ -77,6 +78,8 @@ export default function App() {
     const [beforeTimeType, setBeforeTimeType] = useState(null);
     const [pillName, setPillName] = useState("");
     const [doseCount, setDoseCount] = useState("1");
+    const [selectedLanguage, setSelectedLanguage] = useState();
+
     const navigation = useNavigation();
 
     const itemSeparator = () => (
@@ -130,6 +133,14 @@ export default function App() {
             <View style={{width:'100%',height:40,flexDirection: 'row',marginTop: 30}}>
                 <TextInput style={styles.input} onChangeText={text => setDoseCount(text)} placeholder={'Kaç Doz'} />
             </View>
+            <Picker
+                selectedValue={selectedLanguage}
+                onValueChange={(itemValue, itemIndex) =>
+                    setSelectedLanguage(itemValue)
+                }>
+                <Picker.Item label="Java" value="java" />
+                <Picker.Item label="JavaScript" value="js" />
+            </Picker>
             <View style={{marginTop: 50, flex: 1}}>
                 <FlatList
                     data={DATA2}
