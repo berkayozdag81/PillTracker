@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet, Text, View, Image} from 'react-native';
 import {beforeTimeTypes} from "../consts";
 
-function MedicineInfo({Icon, PillName, DoseCount, beforeTimeType}) {
+function MedicineInfo({Icon, PillName, DoseCount, beforeTimeType, dayCount}) {
     return (
         <View
             style={styles.rowFront}
@@ -39,13 +39,13 @@ function MedicineInfo({Icon, PillName, DoseCount, beforeTimeType}) {
                                 fontSize:16,
                                 lineHeight:20,
                             }}
-                        >{DoseCount} doz {beforeTimeTypes[beforeTimeType]}</Text>
+                        >{DoseCount} doz - {beforeTimeTypes[beforeTimeType]}</Text>
                         <Text style={{
                             marginLeft:"auto",
                             color:"#8C8E97",
                             fontSize:16,
                             lineHeight:20,
-                        }}>7 days</Text>
+                        }}>{dayCount} gün</Text>
                     </View>
                 </View>
             </View>

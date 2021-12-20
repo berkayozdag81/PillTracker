@@ -67,17 +67,12 @@ const MedicineType = ({onPress, selected, image}) => {
     )
 };
 
-const Item = ({ item, onPress, backgroundColor, textColor }) => (
-    <TouchableOpacity onPress={onPress} style={[styles.item, backgroundColor]}>
-        <Text style={[styles.title, textColor]}>{item.title}</Text>
-    </TouchableOpacity>
-);
-
 export default function App() {
-    const [selectedMedicineType, setSelectedMedicineType] = useState(null);
-    const [beforeTimeType, setBeforeTimeType] = useState(null);
+    const [selectedMedicineType, setSelectedMedicineType] = useState(0);
+    const [beforeTimeType, setBeforeTimeType] = useState(0);
+    const [dayCount, setDayCount] = useState(1);
     const [pillName, setPillName] = useState("");
-    const [doseCount, setDoseCount] = useState("1");
+    const [doseCount, setDoseCount] = useState(1);
     const [selectedLanguage, setSelectedLanguage] = useState();
 
     const navigation = useNavigation();
@@ -89,25 +84,18 @@ export default function App() {
     );
 
     const renderItem = ({ item, selected }) => {
-        const backgroundColor = item.id === beforeTimeType ? "#F2F6F7" : "white";
-        const color = item.id === beforeTimeType ? 'black' : 'grey';
-        const backgroundColor2 = selected ? 'red' : 'white';
+        const backgroundColor = item.id === beforeTimeType ? "black" : "#cdcdcd";
         return (
-            <Button style={{borderRadius:999,backgroundColor: '#F2F6F7', width: 119, height: 24,fontSize:20,fontWeight:'bold'}}>
-                <Item
-                    item={item}
-                    onPress={() => setBeforeTimeType(item.id)}
-                    backgroundColor={{ backgroundColor2 }}
-                    textColor={{ color }}
-                />
-            </Button>
+            <TouchableOpacity onPress={() => setBeforeTimeType(item.id)} >
+                <Text style={{fontSize:20, fontWeight: 'bold', color: backgroundColor, paddingVertical: 20  }}>{item.title}</Text>
+            </TouchableOpacity>
         );
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <Text style={{fontWeight:'normal',fontSize:16,color:'#8C8E97'}}>1. Adım</Text>
-            <Text style={{fontWeight:'bold',fontSize:30,color:'#191D30', marginTop: 14}}>İlaç Ekle</Text>
+            <Text style={{fontWeight:'bold',fontSize:30, color:'#191D30', marginTop: 14}}>İlaç Ekle</Text>
             <View style={{marginTop:50}}>
                 <FlatList
                     extraData={selectedMedicineType}
@@ -127,38 +115,54 @@ export default function App() {
                     keyExtractor={item => item.id}
                 />
             </View>
-            <View style={{width:'100%',height:50,flexDirection: 'row', marginTop: 50}}>
+            <View style={{width:'100%',flexDirection: 'row', marginTop: 50}}>
                 <TextInput style={styles.input} onChangeText={text => setPillName(text)} placeholder={'İlaç İsmi'}/>
             </View>
-            <View style={{width:'100%',height:40,flexDirection: 'row',marginTop: 30}}>
-                <TextInput style={styles.input} onChangeText={text => setDoseCount(text)} placeholder={'Kaç Doz'} />
+            <View style={{marginTop: 25,flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={{fontSize:20, fontWeight: 'bold', color: '#cdcdcd'}}>Kaç Doz</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                    <TouchableOpacity onPress={() => doseCount > 1 && setDoseCount(doseCount - 1)} style={{width: 30, height: 30, borderRadius: 999, backgroundColor: '#191D30', alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={{color: 'white', fontSize:20, fontWeight: 'bold'}}> - </Text>
+                    </TouchableOpacity>
+                    <Text style={{marginHorizontal: 10, fontSize:20, fontWeight: 'bold'}}>{doseCount}</Text>
+                    <TouchableOpacity onPress={() => setDoseCount(doseCount + 1)} style={{width: 30, height: 30, borderRadius: 999, backgroundColor: '#191D30', alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={{color: 'white', fontSize:20, fontWeight: 'bold'}}> + </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <Picker
-                selectedValue={selectedLanguage}
-                onValueChange={(itemValue, itemIndex) =>
-                    setSelectedLanguage(itemValue)
-                }>
-                <Picker.Item label="Java" value="java" />
-                <Picker.Item label="JavaScript" value="js" />
-            </Picker>
-            <View style={{marginTop: 50, flex: 1}}>
+            <View style={{marginTop: 25,flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={{fontSize:20, fontWeight: 'bold', color: '#cdcdcd'}}>Kaç Gün</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                    <TouchableOpacity onPress={() => dayCount > 1 && setDayCount(dayCount - 1)} style={{width: 30, height: 30, borderRadius: 999, backgroundColor: '#191D30', alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={{color: 'white', fontSize:20, fontWeight: 'bold'}}> - </Text>
+                    </TouchableOpacity>
+                    <Text style={{marginHorizontal: 10, fontSize:20, fontWeight: 'bold'}}>{dayCount}</Text>
+                    <TouchableOpacity onPress={() => setDayCount(dayCount + 1)} style={{width: 30, height: 30, borderRadius: 999, backgroundColor: '#191D30', alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={{color: 'white', fontSize:20, fontWeight: 'bold'}}> + </Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <View style={{marginTop: 20}}>
                 <FlatList
                     data={DATA2}
                     renderItem={renderItem}
                     horizontal
+                    ItemSeparatorComponent={() => <View style={{width: 15}}/>}
                     keyExtractor={(item) => item.id}
                     extraData={beforeTimeType}
                 />
             </View>
+            <View style={{flex: 1}} />
             <Button style={styles.nextButton} onPress={() => navigation.navigate("AddMedicationTime",
                 {
                     selectedMedicineType: selectedMedicineType,
                     pillName : pillName,
                     doseCount: doseCount,
-                    beforeTimeType : beforeTimeType
+                    beforeTimeType : beforeTimeType,
+                    dayCount
                 }
                 )}>
-                <Text style={{color: 'white', fontSize: 20}}>Next</Text>
+                <Text style={{color: 'white', fontSize: 20, fontWeight: 'bold'}}>Sonraki Adım</Text>
             </Button>
         </SafeAreaView>
     );
@@ -178,13 +182,9 @@ const styles = StyleSheet.create({
         height: 48,
     },
     input: {
-        height: 40,
         width:'100%',
-        borderWidth: 1.5,
-        padding: 10,
-        borderRadius:999,
-        fontSize:15,
+        fontSize:20,
         fontWeight:'bold',
-        color:'#C4CACF',
+        color:'#191D30',
     },
 });

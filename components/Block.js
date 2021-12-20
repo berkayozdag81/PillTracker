@@ -89,7 +89,7 @@ function Block({Item}) {
                                 color:"#8C8E97",
                                 fontSize:16,
                                 lineHeight:20,
-                            }}>7 days</Text>
+                            }}>{Item.dayCount} gün</Text>
                         </View>
                     </View>
                 </View>

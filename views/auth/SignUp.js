@@ -1,11 +1,13 @@
 import { useNavigation } from '@react-navigation/native'
 import React, { useEffect, useState } from 'react'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { auth } from '../../firebase'
+import {KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
+import {auth, firestore} from '../../firebase'
 
-const LoginScreen = () => {
+const SignUpScreen = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [name, setName] = useState('')
+    const [surname, setSurname] = useState('')
 
     const navigation = useNavigation()
     const handleSignUp = () => {
@@ -13,28 +15,38 @@ const LoginScreen = () => {
             .createUserWithEmailAndPassword(email, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
+                user.updateProfile({
+                    displayName: `${name} ${surname}`,
+                });
+                console.log("UUID", user)
                 console.log('Registered with:', user.email);
-            })
-            .catch(error => alert(error.message))
-    }
+            }).then(() => {
+                navigation.navigate("SignIn");
+        })
+            .catch(error => alert(error.message));
 
-    const handleLogin = () => {
-        auth
-            .signInWithEmailAndPassword(email, password)
-            .then(userCredentials => {
-                const user = userCredentials.user;
-                console.log('Logged in with:', user.email);
-                navigation.navigate("MyPills");
-            })
-            .catch(error => alert(error.message))
     }
 
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior="padding"
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <View style={styles.inputContainer}>
+                <TextInput
+                    autoCapitalize='none'
+                    placeholder="Adınız"
+                    value={name}
+                    onChangeText={text => setName(text)}
+                    style={styles.input}
+                />
+                <TextInput
+                    autoCapitalize='none'
+                    placeholder="Soyadınız"
+                    value={surname}
+                    onChangeText={text => setSurname(text)}
+                    style={styles.input}
+                />
                 <TextInput
                     autoCapitalize='none'
                     placeholder="Email"
@@ -44,7 +56,7 @@ const LoginScreen = () => {
                 />
                 <TextInput
                     autoCapitalize='none'
-                    placeholder="Password"
+                    placeholder="Şifre"
                     value={password}
                     onChangeText={text => setPassword(text)}
                     style={styles.input}
@@ -54,23 +66,17 @@ const LoginScreen = () => {
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                    onPress={handleLogin}
-                    style={styles.button}
-                >
-                    <Text style={styles.buttonText}>Login</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
                     onPress={handleSignUp}
                     style={[styles.button, styles.buttonOutline]}
                 >
-                    <Text style={styles.buttonOutlineText}>Register</Text>
+                    <Text style={styles.buttonOutlineText}>Üye Ol</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
     )
 }
 
-export default LoginScreen
+export default SignUpScreen
 
 const styles = StyleSheet.create({
     container: {
